@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.15.4/js/all.js" integrity="sha384-rOA1PnstxnOBLzCLMcre8ybwbTmemjzdNlILg8O7z1lUkLXozs4DHonlDtnE7fpc" crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="main-content">
+        <form method="post" action="/new" id="new-note-form">
+            <div class="form-fields">
+                <label for="title"></label>
+                <input type="text" name="note[title]" id="new-title" class="form-element-field title-field" autocomplete="off" placeholder="Title" autofocus>
+                <hr>
+                <label for="body"></label>
+                <textarea name="note[body]" id="new-body" class="form-element-field body-field" autocomplete="off" placeholder="Enter note here . . ."></textarea>
+                <button id='submit-note' class='submit-btn'><i class="fas fa-check-circle svg"></i></button>
+            </div>
+        </form>
+
+        <div id="notes-container" class="notes-container">
+            <div id="display-notes" class="grid">
+            <% for (note of notes) { %>
+                <div class="tile">
+                    <div class="tile-content">
+                        <h4 class="note-title"><%=note.title%></h4>
+                        <p class="note-body"><%=note.body%></p>
+                        <div class="note-options">
+                            <button class="btn edit-btn" data-note="<%=JSON.stringify(note)%>"><i class="far fa-edit"></i></button>
+                            <button class="btn delete-btn" data-note-id="<%=note._id%>"><i class="far fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+            </div>
+        </div>
+    </div>
+
+    <div class='overlay' id='overlay'>
+        <form method="post" action="/edit" id="edit-note-form" data-note-id="">
+            <div class="form-fields edit-form-fields" id="form-fields">
+                <button class='exit-edit-form' id='exit-edit-form'><i class="far fa-times-circle"></i></button>
+                <label for="title"></label>
+                <input type="text" name="editNote[title]" id="edit-title" class="form-element-field title-field" autocomplete="off" placeholder="Title" autofocus>
+                <hr>
+                <label for="body"></label>
+                <textarea name="editNote[body]" id="edit-body" class="form-element-field body-field" autocomplete="off" placeholder="Enter note here . . ."></textarea>
+                <button id='submit-edit-form' class='submit-btn'><i class="fas fa-check-circle svg"></i></button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/web-animations-js@2.3.2/web-animations.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/muuri@0.9.5/dist/muuri.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/javascript/index.js"></script>
+</body>
+</html>
+
+<!-- <div class="grid">
+        <div class="tile">
+            <div class="tile-content">Hello World</div>
+        </div>
+        <div class="tile">
+            <div class="tile-content">Javscript is the best</div>
+        </div>
+        <div class="tile">
+            <div class="tile-content">I love CSS</div>
+        </div>
+    </div> -->
