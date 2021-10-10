@@ -22,25 +22,12 @@
         </form>
 
         <div id="notes-container" class="notes-container">
-            <div id="display-notes" class="grid">
-            <% for (note of notes) { %>
-                <div class="tile">
-                    <div class="tile-content">
-                        <h4 class="note-title"><%=note.title%></h4>
-                        <p class="note-body"><%=note.body%></p>
-                        <div class="note-options">
-                            <button class="btn edit-btn" data-note="<%=JSON.stringify(note)%>"><i class="far fa-edit"></i></button>
-                            <button class="btn delete-btn" data-note-id="<%=note._id%>"><i class="far fa-trash-alt"></i></button>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-            </div>
+            <div id="display-notes" class="grid"></div>
         </div>
     </div>
 
     <div class='overlay' id='overlay'>
-        <form method="post" action="/edit" id="edit-note-form" data-note-id="">
+        <form method="post" action="/edit" id="edit-note-form" data-note-id="" data-div-id="">
             <div class="form-fields edit-form-fields" id="form-fields">
                 <button class='exit-edit-form' id='exit-edit-form'><i class="far fa-times-circle"></i></button>
                 <label for="title"></label>
@@ -52,22 +39,12 @@
             </div>
         </form>
     </div>
-    
+
+    <script>const passedNotes = {notes: <%-JSON.stringify(notes)%>};</script>
+    <!-- <button id="update-button">Update</button> -->
     <script src="https://cdn.jsdelivr.net/npm/web-animations-js@2.3.2/web-animations.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/muuri@0.9.5/dist/muuri.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/javascript/index.js"></script>
 </body>
 </html>
-
-<!-- <div class="grid">
-        <div class="tile">
-            <div class="tile-content">Hello World</div>
-        </div>
-        <div class="tile">
-            <div class="tile-content">Javscript is the best</div>
-        </div>
-        <div class="tile">
-            <div class="tile-content">I love CSS</div>
-        </div>
-    </div> -->

@@ -22,6 +22,11 @@ app.get('/', async (req, res) => {
     return res.render('index', {notes});   
 })
 
+app.get('/notes', async (req, res) => {
+    const notes = await Note.find();
+    res.send(notes);
+})
+
 app.post('/new', async (req, res) => {
     const note = req.body;
     const newNote = await new Note(note);

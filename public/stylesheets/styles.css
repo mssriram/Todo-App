@@ -158,6 +158,10 @@ hr{
     color: var(--text-color-primary);
 }
 
+i{
+    display: inline-block;
+}
+
 .note-title{
     font-size: 1.1rem;
     font-weight: 600;
@@ -166,6 +170,7 @@ hr{
 
 .note-options{  
     display: flex;
+    position: relative;
     justify-content: flex-end;
     margin-top: 20px;
 }
