@@ -1,5 +1,3 @@
-const notes = passedNotes.notes;
-
 let grid = new Muuri('.grid', {
     dragEnabled: true,
     dragStartPredicate: {
@@ -10,31 +8,20 @@ let grid = new Muuri('.grid', {
     itemReleasingClass: 'release-class'
 })
 
-const updateLayout = () => {
-    const notesLength = grid.getItems().length;
-    for (let i=0; i<notesLength; i++) {
-        grid.remove([grid.getItem(0)], {removeElements: true});
-    }
+const updateLayout = (divId, note) => {
+    let div = grid.getItem(divId);
+    div._element.children[0].children[0].innerText = note.title;
+    div._element.children[0].children[1].innerText = note.body;
+    grid.remove([div], {removeElements: true});
+    grid.add(div._element, {index: divId});
 
-    axios.get('/notes')
-        .then(async (res) => {
-            for (let note of res.data) {
-                const div = document.createElement('div');
-                div.classList.add('tile');
-                div.innerHTML = `<div class='tile-content'>
-                                    <h4 class="note-title">${note.title}</h4>
-                                    <p class="note-body">${note.body}</p>
-                                    <div class="note-options">
-                                        <button class="btn edit-btn" data-note='${JSON.stringify(note)}'><i class="far fa-edit"></i></button>
-                                        <button class="btn delete-btn" data-note-id="${note._id}"><i class="far fa-trash-alt"></i></button>
-                                    </div>
-                                </div>`
-                await grid.add(div);
-            }
-        })
-        .catch((err) => {console.log(err)})
+    div = grid.getItem(divId);
+
+    const deleteBtn = div._element.children[0].children[2].children[1];
+    const editBtn = div._element.children[0].children[2].children[0];
+
+    grid.synchronize();
 }
-updateLayout();
 
 const mainContent = document.querySelector('#main-content');
 const overlay = document.querySelector('#overlay');
@@ -48,9 +35,8 @@ const submitEditFormButton = document.querySelector('#submit-edit-form');
 const displayNotes = document.querySelector('#display-notes');
 const notesContainer = document.querySelector('#notes-container');
 
-const updateButton = document.querySelector('#update-button');
-const deleteButtons = document.querySelectorAll('.delete-btn');
 const editButtons = document.querySelectorAll('.edit-btn');
+const deleteButtons = document.querySelectorAll('.delete-btn');
 
 deleteButtons.forEach((btn) => {
     btn.addEventListener('click', (e) => {
@@ -78,33 +64,23 @@ const deleteNote = (id, element) => {
 }
 
 const editNote = (btn) => {
-    const noteData = JSON.parse(btn.dataset.note);
+    const noteId = btn.dataset.noteId;
+    axios.get(`/${noteId}`)
+        .then((res) => {
+            const parent = grid.getItem(btn.parentElement.parentElement.parentElement);
 
-    const parent = grid.getItem(btn.parentElement.parentElement.parentElement);
+            editNoteForm.elements['editNote[title]'].value = res.data.title;
+            editNoteForm.elements['editNote[body]'].value = res.data.body;  
+            editNoteForm.dataset.noteId = res.data._id;
+            editNoteForm.dataset.divId = grid._items.findIndex((currDiv) => currDiv === parent)
 
-    editNoteForm.elements['editNote[title]'].value = noteData.title;
-    editNoteForm.elements['editNote[body]'].value = noteData.body;
-    editNoteForm.dataset.noteId = noteData._id;
-    editNoteForm.dataset.divId = parseInt(parent._id) - 2;
+            mainContent.classList.add('blur-content');
+            overlay.style.display = 'block';
+        })
+        .catch((err) => console.log(err));
 
-    mainContent.classList.add('blur-content');
-    overlay.style.display = 'block';
+    
 }
-
-// grid.on('layoutEnd', (items) => {
-//     console.log(items);
-// })
-
-const resizeObserver = new ResizeObserver(entries => {
-    const resizedDiv = entries[0];
-    const resizedDivWidth = Math.floor(resizedDiv.borderBoxSize[0].inlineSize);
-    const newDivWidth = Math.floor(resizedDivWidth/248) * 248;
-
-    displayNotes.style.width = `${newDivWidth}px`;
-    displayNotes.style.margin = `0 auto`;
-})
-
-resizeObserver.observe(notesContainer);
 
 newNoteForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -114,7 +90,6 @@ newNoteForm.addEventListener('submit', (e) => {
         body: newNoteForm.elements['note[body]'].value
     }
 
-    // console.log(note);
     axios.post('/new', note)
         .then((res) => {
             const div = document.createElement('div');
@@ -148,10 +123,7 @@ newNoteForm.addEventListener('submit', (e) => {
 submitEditFormButton.addEventListener('click', (e) => {
     e.preventDefault();
     
-    const activeDiv = grid.getItem(parseInt(editNoteForm.dataset.divId));
-    const title = activeDiv._element.children[0].children[0];
-    const body = activeDiv._element.children[0].children[1];
-    console.log(title, body);
+    const divId = parseInt(editNoteForm.dataset.divId);
 
     const note = {
         _id: editNoteForm.dataset.noteId,
@@ -161,9 +133,7 @@ submitEditFormButton.addEventListener('click', (e) => {
     
     axios.put(`/${note._id}`, note)
         .then((res) => {
-            title.innerText = note.title;
-            body.innerText = note.body;
-            updateLayout();
+            updateLayout(divId, note)
         })
         .catch((err) => console.log(err));
 
@@ -177,3 +147,13 @@ exitEditFormButton.addEventListener('click', (e) => {
     overlay.style.display = 'none';
 })
 
+const resizeObserver = new ResizeObserver(entries => {
+    const resizedDiv = entries[0];
+    const resizedDivWidth = Math.floor(resizedDiv.borderBoxSize[0].inlineSize);
+    const newDivWidth = Math.floor(resizedDivWidth/248) * 248;
+
+    displayNotes.style.width = `${newDivWidth}px`;
+    displayNotes.style.margin = `0 auto`;
+})
+
+resizeObserver.observe(notesContainer);

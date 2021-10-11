@@ -34,6 +34,12 @@ app.post('/new', async (req, res) => {
     return res.send(newNote);
 })
 
+app.get('/:id', async (req, res) =>{
+    const {id} = req.params;
+    const note = await Note.findById(id);
+    res.send(note);
+})
+
 app.delete('/:id', async (req, res) => {
     const {id} = req.params;
     await Note.findByIdAndDelete(id);
