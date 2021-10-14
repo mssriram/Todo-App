@@ -8,21 +8,6 @@ let grid = new Muuri('.grid', {
     itemReleasingClass: 'release-class'
 })
 
-const updateLayout = (divId, note) => {
-    let div = grid.getItem(divId);
-    div._element.children[0].children[0].innerText = note.title;
-    div._element.children[0].children[1].innerText = note.body;
-    grid.remove([div], {removeElements: true});
-    grid.add(div._element, {index: divId});
-
-    div = grid.getItem(divId);
-
-    const deleteBtn = div._element.children[0].children[2].children[1];
-    const editBtn = div._element.children[0].children[2].children[0];
-
-    grid.synchronize();
-}
-
 const mainContent = document.querySelector('#main-content');
 const overlay = document.querySelector('#overlay');
 
@@ -32,16 +17,16 @@ const editNoteForm = document.querySelector('#edit-note-form')
 const exitEditFormButton = document.querySelector('#exit-edit-form');
 const submitEditFormButton = document.querySelector('#submit-edit-form');
 
-const displayNotes = document.querySelector('#display-notes');
 const notesContainer = document.querySelector('#notes-container');
 
 const editButtons = document.querySelectorAll('.edit-btn');
 const deleteButtons = document.querySelectorAll('.delete-btn');
+const colorButtons = document.querySelectorAll('input[type="radio"]');
 
 deleteButtons.forEach((btn) => {
     btn.addEventListener('click', (e) => {
         const noteId = btn.dataset.noteId;
-        const parent = btn.parentElement.parentElement.parentElement;
+        const parent = btn.closest('.tile');
 
         deleteNote(noteId, parent);
     })
@@ -52,6 +37,33 @@ editButtons.forEach((btn) => {
         editNote(btn);
     });
 })
+
+colorButtons.forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+        const note = btn.closest('.tile');
+        const color = `${btn.dataset.color}`;
+        note.classList.remove('default', 'red', 'blue', 'green', 'yellow', 'purple');
+        note.classList.add(color);
+
+        const noteId = btn.closest(".tile").dataset.noteId;
+
+        axios.put(`/color/${noteId}`, {color: color})
+            .then((res) => console.log(res.data))
+            .catch((err) => console.log(err));
+    })
+})
+
+const updateLayout = (divId, note) => {
+    let div = grid.getItem(divId);
+    div._element.querySelector('.note-title').innerText = note.title;
+    div._element.querySelector('.note-body').innerText = note.body;
+    grid.remove([div], {removeElements: true});
+    grid.add(div._element, {index: divId});
+
+    div = grid.getItem(divId);
+
+    grid.synchronize();
+}
 
 const deleteNote = (id, element) => {
     grid.remove([grid.getItem(element)], {
@@ -67,7 +79,8 @@ const editNote = (btn) => {
     const noteId = btn.dataset.noteId;
     axios.get(`/${noteId}`)
         .then((res) => {
-            const parent = grid.getItem(btn.parentElement.parentElement.parentElement);
+            console.log()
+            const parent = grid.getItem(btn.closest('.tile'));
 
             editNoteForm.elements['editNote[title]'].value = res.data.title;
             editNoteForm.elements['editNote[body]'].value = res.data.body;  
@@ -78,8 +91,6 @@ const editNote = (btn) => {
             overlay.style.display = 'block';
         })
         .catch((err) => console.log(err));
-
-    
 }
 
 newNoteForm.addEventListener('submit', (e) => {
@@ -98,14 +109,14 @@ newNoteForm.addEventListener('submit', (e) => {
                                 <h4 class="note-title">${res.data.title}</h4>
                                 <p class="note-body">${res.data.body}</p>
                                 <div class="note-options">
-                                    <button class="btn edit-btn" data-note='${JSON.stringify(res.data)}'><i class="far fa-edit"></i></button>
-                                    <button class="btn delete-btn" data-note-id="${res.data._id}"><i class="far fa-trash-alt"></i></button>
+                                    <button class="btn edit-btn" data-note-id="${res.data._id}"><span class="inline iconify-inline" data-icon="akar-icons:edit"></span></button>
+                                    <button class="btn delete-btn" data-note-id="${res.data._id}"><span class="inline iconify-inline" data-icon="ant-design:delete-outlined"></span></button>
                                 </div>
                             </div>`
             grid.add(div);
-
-            const deleteButton = div.children[0].children[2].children[1];
-            const editButton = div.children[0].children[2].children[0];
+            
+            const deleteButton = div.querySelector('.delete-btn');
+            const editButton = div.querySelector('.edit-btn');
 
             deleteButton.addEventListener('click', (e) => {
                 deleteNote(res.data._id, div);
@@ -148,9 +159,12 @@ exitEditFormButton.addEventListener('click', (e) => {
 })
 
 const resizeObserver = new ResizeObserver(entries => {
+    const displayNotes = document.querySelector('#display-notes');
+
     const resizedDiv = entries[0];
     const resizedDivWidth = Math.floor(resizedDiv.borderBoxSize[0].inlineSize);
-    const newDivWidth = Math.floor(resizedDivWidth/248) * 248;
+    const divWidth = 220 + 30 + 2 + 16;
+    const newDivWidth = Math.floor(resizedDivWidth/divWidth) * divWidth;
 
     displayNotes.style.width = `${newDivWidth}px`;
     displayNotes.style.margin = `0 auto`;

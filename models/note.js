@@ -4,13 +4,16 @@ Schema = mongoose.Schema;
 const noteSchema = new Schema({
     title: {
         type: String,
-        required: true
     },
     body: {
         type: String,
-        required: true
+    },
+    color: {
+        type: String,
+        default: 'default'
     }
 })
 
 const Note = mongoose.model('Note', noteSchema);
 module.exports = Note;
+    

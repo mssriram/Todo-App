@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 const Note = require('./models/note');
-const { EWOULDBLOCK } = require('constants');
 
 mongoose.connect('mongodb://localhost:27017/todoApp')
     .then(() => console.log('connected to MongoDB'))
@@ -51,9 +50,20 @@ app.put('/:id', async (req, res) => {
     const {id} = req.params;
     const updatedNote = req.body;
 
-    const note = await Note.findByIdAndUpdate(id, updatedNote);
+    await Note.findByIdAndUpdate(id, updatedNote);
     console.log('updated');
     return res.send('note received');
+})
+
+app.put('/color/:id', async (req, res) => {
+    const {id} = req.params;
+    const {color} = req.body;
+
+    const note = await Note.findById(id);
+    note.color = color;
+    await note.save();
+
+    res.send('color updated');
 })
 
 app.listen(3000, () => {
