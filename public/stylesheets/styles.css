@@ -62,7 +62,7 @@ body{
 form{
     display: flex;
     flex-direction: column;
-    width: 35%;
+    width: 30%;
     margin: 50px auto 30px auto;
 }
 
@@ -93,6 +93,7 @@ form{
 }
 
 .body-field{
+    display: inline-block;
     height: 120px;
     padding: 15px 5%;
     resize: none;
@@ -151,7 +152,6 @@ hr{
     width: 220px;
     padding: 15px;
     margin: 8px;
-    z-index: 1;
     border: thin solid grey; 
     border-radius: 8px;
     color: var(--text-color-primary);
@@ -170,16 +170,20 @@ i{
 
 .note-body{
     font-size: 1.1rem;
+    word-wrap: break-word;
 }
 
 .note-options{  
     display: flex;
+    align-items: center;
     flex-direction: row-reverse;
     margin-top: 20px;
+    height: 36px;
+    /* z-index: 10; */
 }
  
 .btn{
-    padding: 0 3px;
+    padding: 5px;
     font-size: 24px;
     display: inline-block;
     border: none;
@@ -188,7 +192,7 @@ i{
     cursor: pointer;
     visibility: hidden;
     opacity: 0;
-    z-index: 10;
+    /* z-index: 10; */
 }
 
 .delete-btn{
@@ -202,14 +206,13 @@ i{
 }
 
 .color-dropdown{
-    display: flex;
+    display: none;
     opacity: 0;
-    height: 0;
-    width: 0;
+    padding: 10px 8px;
     position: absolute;
     bottom: 25px;
     background-color: rgb(26, 26, 26);
-    border-radius: 3px;
+    border-radius: 5px; 
 }
 
 .color-container {
@@ -237,22 +240,19 @@ i{
     box-sizing: border-box;
     border: 1px solid grey;
 }
-  
-/* On mouse-over, add a grey background color */
-.checkmark:hover input ~ .checkmark {
-    opacity: 0.6;
-}
 
 input[type="radio"]:checked ~ .checkmark {
     border: 3px solid white;
+    box-shadow: 0 0 2px white;  
 }
 
-.color-btn:hover ~ .color-dropdown, .color-dropdown:hover{
-    transition: opacity 0.3s ease-in-out;
-    transition-delay: 0.3s;
-    padding: 10px 8px;
-    height: auto;
-    width: auto;
+.color-btn:hover ~ .color-dropdown{
+    display: flex;
+    opacity: 1;
+}
+
+.color-dropdown:hover{
+    display: flex;
     opacity: 1;
 }
 
@@ -265,19 +265,20 @@ input[type="radio"]:checked ~ .checkmark {
 }
 
 .green{
-    background-color: rgba(32, 139, 58, 0.6);
+    background-color: #1d532c;
 }
 
 .blue{
-    background-color: rgb(30, 96, 145);
+    background-color: rgb(0, 65, 82);
 }
 
 .yellow{
-    background-color: rgba(224,176,0, 0.6);
+    /* background-color: rgba(224,176,0, 0.6); */
+    background-color: rgb(125, 105, 26);
 }
 
 .purple{
-    background-color: hsl(272, 52%, 35%);
+    background-color: rgba(92, 43, 136, 0.5);
 }
 /* -------------------------------color picker -------------------------------------- */
 .inline{
@@ -290,13 +291,10 @@ input[type="radio"]:checked ~ .checkmark {
     opacity: 1;
 }
 
-.edit-btn:hover{
-    color: #17a2b8;
+.btn:hover{
+    color: rgb(182, 182, 182);
+    transition: all 1s ease-out;
 }
-
-.delete-btn:hover{
-    color: #f94144;
-} 
 
 .drag-class{
     z-index: 5;
@@ -322,7 +320,7 @@ input[type="radio"]:checked ~ .checkmark {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 5;
+    /* z-index: 5; */
     transition: all 0.3s ease;
 }
 

@@ -23,6 +23,8 @@ const editButtons = document.querySelectorAll('.edit-btn');
 const deleteButtons = document.querySelectorAll('.delete-btn');
 const colorButtons = document.querySelectorAll('input[type="radio"]');
 
+
+
 deleteButtons.forEach((btn) => {
     btn.addEventListener('click', (e) => {
         const noteId = btn.dataset.noteId;
@@ -40,18 +42,22 @@ editButtons.forEach((btn) => {
 
 colorButtons.forEach((btn) => {
     btn.addEventListener('click', (e) => {
-        const note = btn.closest('.tile');
-        const color = `${btn.dataset.color}`;
-        note.classList.remove('default', 'red', 'blue', 'green', 'yellow', 'purple');
-        note.classList.add(color);
-
-        const noteId = btn.closest(".tile").dataset.noteId;
-
-        axios.put(`/color/${noteId}`, {color: color})
-            .then((res) => console.log(res.data))
-            .catch((err) => console.log(err));
+        changeNoteColor(btn);
     })
 })
+
+const changeNewNoteHeight = () => {
+    const bodyDiv = newNoteForm.elements['note[body]'];
+    const lines = (bodyDiv.value.match(/\n/g)||[]).length + 1;
+    const height = 120;  
+    if (lines < 7){ 
+        const calculatedHeight = height + (((lines - 4)>0 ? lines-4 : 0) * 23);                              //padding = 30px top and bottom
+        bodyDiv.style.height = `${calculatedHeight}px`;
+    }
+    else{
+        bodyDiv.style.height = `189px`;
+    }
+}
 
 const updateLayout = (divId, note) => {
     let div = grid.getItem(divId);
@@ -93,30 +99,81 @@ const editNote = (btn) => {
         .catch((err) => console.log(err));
 }
 
+const changeNoteColor = (btn) => {
+    const note = btn.closest('.tile');
+    const color = `${btn.dataset.color}`;
+    note.classList.remove('default', 'red', 'blue', 'green', 'yellow', 'purple');
+    note.classList.add(color);
+
+    const noteId = btn.closest(".tile").dataset.noteId;
+    axios.put(`/color/${noteId}`, {color: color})
+        .then((res) => console.log(res.data))
+        .catch((err) => console.log(err));
+}
+
 newNoteForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const note = {
         title: newNoteForm.elements['note[title]'].value,
-        body: newNoteForm.elements['note[body]'].value
+        body: newNoteForm.elements['note[body]'].value,
+        color: 'default',
     }
 
     axios.post('/new', note)
         .then((res) => {
             const div = document.createElement('div');
-            div.classList.add('tile');
+            div.classList.add('tile', note.color);
+            div.dataset.noteId = res.data._id;
             div.innerHTML = `<div class='tile-content'>
                                 <h4 class="note-title">${res.data.title}</h4>
                                 <p class="note-body">${res.data.body}</p>
                                 <div class="note-options">
                                     <button class="btn edit-btn" data-note-id="${res.data._id}"><span class="inline iconify-inline" data-icon="akar-icons:edit"></span></button>
                                     <button class="btn delete-btn" data-note-id="${res.data._id}"><span class="inline iconify-inline" data-icon="ant-design:delete-outlined"></span></button>
+                                    <div class="color-picker">
+                                        <button class="btn color-btn"><span class="color-picker-btn inline iconify-inline" data-icon="carbon:color-palette"></span></button>
+                                        <div class="color-dropdown">
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="default"?"checked":""} name="<%-note._id%>" data-color="default">
+                                                <span class="checkmark default"></span>
+                                            </label>
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="red"?"checked":""} name="<%-note._id%>" data-color="red">
+                                                <span class="checkmark red"></span>
+                                            </label>
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="green"?"checked":""} name="<%-note._id%>" data-color="green">
+                                                <span class="checkmark green"></span>
+                                            </label>
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="blue"?"checked":""} name="<%-note._id%>" data-color="blue">
+                                                <span class="checkmark blue"></span>
+                                            </label>
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="yellow"?"checked":""} name="<%-note._id%>" data-color="yellow">
+                                                <span class="checkmark yellow"></span>
+                                            </label>
+                                            <label class="color-container">
+                                                <input type="radio" ${note.color==="purple"?"checked":""} name="<%-note._id%>" data-color="purple">
+                                                <span class="checkmark purple"></span>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>`
             grid.add(div);
             
             const deleteButton = div.querySelector('.delete-btn');
             const editButton = div.querySelector('.edit-btn');
+            const colorButtons = div.querySelectorAll('input[type="radio"]');
+
+            // console.log(colorButtons)
+            colorButtons.forEach((btn) => {
+                btn.addEventListener('click', (e) => {
+                    changeNoteColor(btn);
+                })
+            })
 
             deleteButton.addEventListener('click', (e) => {
                 deleteNote(res.data._id, div);
@@ -129,6 +186,11 @@ newNoteForm.addEventListener('submit', (e) => {
         .catch((error) => {console.log(error)});
 
     newNoteForm.reset();
+    newNoteForm.elements['note[body]'].style.height = `120px`;
+})
+
+newNoteForm.elements['note[body]'].addEventListener('input', (e) => {
+    changeNewNoteHeight();
 })
 
 submitEditFormButton.addEventListener('click', (e) => {
